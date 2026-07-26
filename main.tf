@@ -97,4 +97,14 @@ resource "azurerm_lb_backend_address_pool" "int-lb-backend-pool" {
   name                = "myBackendPool"
   loadbalancer_id     = azurerm_lb.int-lb.id
   virtual_network_id = azurerm_virtual_network.int-vnet.id
-}       
+}
+
+resource "azurerm_lb_probe" "int-lb-health-probe" {
+  name                = "myHealthProbe"
+  loadbalancer_id     = azurerm_lb.int-lb.id
+  protocol            = "Http"
+  port                = 80
+  interval_in_seconds = 5
+  request_path        = "/"
+  number_of_probes    = 2
+}
