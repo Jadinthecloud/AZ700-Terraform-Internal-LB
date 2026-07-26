@@ -14,7 +14,7 @@ provider "azurerm" {
 
   features {}
 
-  subscription_id = "var.subscription_id"
+  subscription_id = "0ea79fff-4d8c-4687-8082-109098c41c25"
 
 }
 
@@ -77,3 +77,24 @@ resource "azurerm_subnet" "Frontendsubnet" {
     virtual_network_name = azurerm_virtual_network.int-vnet.name
     address_prefixes     = ["10.1.2.0/24"]
 }
+
+resource "azurerm_lb" "int-lb" {
+  name                = "myIntLoadBalancer"
+  location            = azurerm_resource_group.rgmain.location
+  resource_group_name = azurerm_resource_group.rgmain.name
+  sku                 = "Standard"
+  frontend_ip_configuration {
+    name                     = "LoadBalancerFrontEnd"
+    subnet_id                = azurerm_subnet.Frontendsubnet.id
+    private_ip_address_allocation    = "Dynamic"
+  }
+
+}
+
+#configure lb backend pool as well as create health probe. This will tell me which server is currenltly healthy and which is not. This will be used to route traffic to the healthy server.
+
+resource "azurerm_lb_backend_address_pool" "int-lb-backend-pool" {
+  name                = "myBackendPool"
+  loadbalancer_id     = azurerm_lb.int-lb.id
+  virtual_network_id = azurerm_virtual_network.int-vnet.id
+}       
