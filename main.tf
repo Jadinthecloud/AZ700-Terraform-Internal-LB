@@ -137,5 +137,16 @@ resource "azurerm_lb_probe" "int-lb-health-probe" {
   port                = 80
   interval_in_seconds = 15
   request_path        = "/"
-  number_of_probes    = 3
+  number_of_probes    = 1
+}
+
+resource "azurerm_lb_rule" "FWrule" {
+  name                           = "HTTPRule"
+  loadbalancer_id                = azurerm_lb.int-lb.id
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.int-lb-backend-pool.id]
+  frontend_ip_configuration_name = azurerm_lb.int-lb.frontend_ip_configuration[0].name
+  probe_id                       = azurerm_lb_probe.int-lb-health-probe.id
 }
