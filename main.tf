@@ -96,15 +96,46 @@ resource "azurerm_lb" "int-lb" {
 resource "azurerm_lb_backend_address_pool" "int-lb-backend-pool" {
   name                = "myBackendPool"
   loadbalancer_id     = azurerm_lb.int-lb.id
-  virtual_network_id = azurerm_virtual_network.int-vnet.id
 }
 
+data "azurerm_network_interface" "vm1" {
+  name                = "myVMnic1"
+  resource_group_name = "IntLB-RGnew"
+}
+
+data "azurerm_network_interface" "vm2" {
+  name                = "myVMnic2"
+  resource_group_name = "IntLB-RGnew"
+}
+
+data "azurerm_network_interface" "vm3" {
+  name                = "myVMnic3"
+  resource_group_name = "IntLB-RGnew"
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "vm1" {
+  network_interface_id    = data.azurerm_network_interface.vm1.id
+  ip_configuration_name   = "ipconfig1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.int-lb-backend-pool.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "vm2" {
+  network_interface_id    = data.azurerm_network_interface.vm2.id
+  ip_configuration_name   = "ipconfig1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.int-lb-backend-pool.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "vm3" {
+  network_interface_id    = data.azurerm_network_interface.vm3.id
+  ip_configuration_name   = "ipconfig1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.int-lb-backend-pool.id
+}
 resource "azurerm_lb_probe" "int-lb-health-probe" {
   name                = "myHealthProbe"
   loadbalancer_id     = azurerm_lb.int-lb.id
   protocol            = "Http"
   port                = 80
-  interval_in_seconds = 5
+  interval_in_seconds = 15
   request_path        = "/"
-  number_of_probes    = 2
+  number_of_probes    = 3
 }
