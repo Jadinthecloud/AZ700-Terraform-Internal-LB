@@ -11,11 +11,10 @@ terraform {
 }
 
 provider "azurerm" {
+    subscription_id = "var.subscription_id"
+    features {}
 
-  features {}
-
-  subscription_id = "0ea79fff-4d8c-4687-8082-109098c41c25"
-
+  
 }
 
 resource "azurerm_resource_group" "rgmain" {
@@ -28,6 +27,18 @@ resource "azurerm_virtual_network" "int-vnet" {
     resource_group_name = azurerm_resource_group.rgmain.name
     address_space = ["10.1.0.0/16"]
     location = "East US"
+}
+
+resource "azurerm_NIC" "test-nic" {
+  name                = "vmtest-nic"
+  location            = azurerm_resource_group.rgmain.location
+  resource_group_name = azurerm_resource_group.rgmain.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.BackendSubnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
 }
 
 resource "azurerm_bastion_host" "int-bastion" {
